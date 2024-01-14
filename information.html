@@ -1,0 +1,320 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Student Information</title>
+  <link rel="stylesheet" href="user_info.css">
+  <!-- Firebase SDK -->
+  <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-storage.js"></script>
+  
+  <script>
+    const firebaseConfig = {
+        apiKey: "AIzaSyCJ-F4W--iI8qLgYeLBPD78z97Sa0FE6Dg",
+        authDomain: "final-abe61.firebaseapp.com",
+        databaseURL: "https://final-abe61-default-rtdb.firebaseio.com",
+        projectId: "final-abe61",
+        storageBucket: "final-abe61.appspot.com",
+        messagingSenderId: "516845694136",
+        appId: "1:516845694136:web:83a917e5c0e511c497d84d",
+        measurementId: "G-4Z9EWVGC6X"
+    };
+
+    firebase.initializeApp(firebaseConfig);
+    let profileInfoVisible = false;
+    const database = firebase.database();
+    function displayUserProfile() {
+      const user = firebase.auth().currentUser;
+      if (user) {
+        const userId = user.uid;
+        const profileInfoDiv = document.getElementById('profile-info');
+
+        if (!profileInfoVisible) {
+          database.ref('users/' + userId).once('value')
+            .then((snapshot) => {
+              const userData = snapshot.val();
+              if (userData) {
+                profileInfoDiv.innerHTML = `
+                <h2>User Profile Information</h2>
+    <p><strong>Name:</strong> ${userData.name}</p>
+    <p><strong>Last Name:</strong> ${userData.lastName}</p>
+    <p><strong>Email:</strong> ${userData.email}</p>
+    <p><strong>Gender:</strong> ${userData.gender}</p>
+    <p><strong>Phone Number:</strong> ${userData.phoneNumber}</p>
+    <p><strong>Birth Date:</strong> ${userData.birthDate}</p>
+    <p><strong>Age:</strong> ${userData.age}</p>
+    <p><strong>Identity Number:</strong> ${userData.identityNumber}</p>
+    <p><strong>City:</strong> ${userData.city}</p>
+    <p><strong>Current Year of Study:</strong> ${userData.yearOfStudy}</p>
+    <p><strong>School:</strong> ${userData.school}</p>
+    <p><strong>University:</strong> ${userData.university}</p>
+    <p><strong>Year of Registration:</strong> ${userData.yearOfRegistration}</p>
+    <p><strong>Year of Graduation:</strong> ${userData.yearOfGraduation}</p>
+    <p><strong>Major:</strong> ${userData.major}</p>
+    <p><strong>Clubs:</strong> ${userData.clubs}</p>
+    <p><strong>Interests:</strong> ${userData.interests}</p>
+    <p><strong>Social Networks:</strong> ${userData.socialNetworks}</p>
+    <p><strong>Current Job:</strong> ${userData.currentJob}</p>
+    <p><strong>shortbio:</strong> ${userData.shortbio}</p>
+    <img src="${userData.image}" alt="Profile Image" class="profile-image">
+                `;
+              } else {
+                profileInfoDiv.innerHTML = "<p>No user data found!</p>";
+              }
+            })
+            .catch((error) => {
+              console.error("Error fetching user data:", error);
+            });
+        } else {
+          profileInfoDiv.innerHTML = '';
+        }
+      } else {
+        document.getElementById('profile-info').innerHTML = "<p>No user authenticated!</p>";
+      }
+      profileInfoVisible = !profileInfoVisible;
+    }
+
+    function navigateToUsersInfo() {
+      window.location.href = "users_info.html";
+    }
+
+    function saveUserInfo(event) {
+    event.preventDefault(); // Prevent form submission for now
+
+    const name = document.getElementById('name').value;
+    const lastName = document.getElementById('lastName').value;
+    const email = document.getElementById('email').value; // New field
+    const gender = document.getElementById('gender').value;
+    const phoneNumber = document.getElementById('phoneNumber').value;
+    const birthDate = document.getElementById('birthDate').value;
+    const age = document.getElementById('age').value;
+    const identityNumber = document.getElementById('identityNumber').value;
+    const city = document.getElementById('city').value;
+    const yearOfStudy = document.getElementById('yearOfStudy').value;
+    const university = document.getElementById('university').value;
+    const yearOfRegistration = document.getElementById('yearOfRegistration').value;
+    const yearOfGraduation = document.getElementById('yearOfGraduation').value;
+    const major = document.getElementById('major').value;
+    const clubs = document.getElementById('clubs').value;
+    const interests = document.getElementById('interests').value;
+    const socialNetworks = document.getElementById('socialNetworks').value;
+    const shortbio = document.getElementById('shortbio').value;
+    const currentJob = document.getElementById('currentJob').value;
+
+    const imageInput = document.getElementById('image');
+    const imageFile = imageInput.files[0]; // Get the uploaded file
+
+    // Assuming you're using Firebase Storage to store the image file
+    const storageRef = firebase.storage().ref();
+    const imagesRef = storageRef.child('profile_images/' + imageFile.name);
+
+    // Upload the image file to Firebase Storage
+    imagesRef.put(imageFile).then((snapshot) => {
+        snapshot.ref.getDownloadURL().then((downloadURL) => {
+            // Save user information to the Realtime Database under 'users' node
+            const userId = firebase.auth().currentUser.uid;
+            database.ref('users/' + userId).set({
+                name,
+                lastName,
+                email, // New field
+                gender,
+                phoneNumber,
+                birthDate,
+                age,
+                identityNumber,
+                city,
+
+                yearOfStudy,
+                university,
+                yearOfRegistration,
+                yearOfGraduation,
+                major,
+                clubs,
+                interests,
+                socialNetworks,
+                currentJob,
+                shortbio,
+                image: downloadURL // Store the image URL in the database
+              }).then(() => {
+                // Inform user that information is saved
+                alert('User information saved successfully!');
+                window.location.href = "cards.html";
+            }).catch((error) => {
+                console.error("Error saving user information:", error);
+            });
+        });
+    }).catch((error) => {
+        console.error("Error uploading image:", error);
+    });
+}
+function showSideWindow() {
+      const sideWindow = document.getElementById('side-window');
+      sideWindow.style.width = '250px';  // Set the width as desired
+    }
+    
+    // Function to hide the side window
+    function hideSideWindow() {
+      const sideWindow = document.getElementById('side-window');
+      sideWindow.style.width = '0';
+    }
+
+  </script>
+  <style>
+    body {
+      background: url('pictures/grad.jpg') no-repeat center center fixed;
+      background-size: cover; /* Make the background cover the entire page */
+      margin: 0; /* Remove default margin to ensure the background covers the entire page */
+      padding: 0; /* Remove default padding */
+    }
+
+    .card {
+      max-width: 600px;
+      margin: 50px auto;
+      padding: 20px;
+      border-radius: 10px;
+      box-shadow: 0 0 10px rgb(0, 255, 255);
+      background-color: #ffffffb8;
+    }
+
+    h1 {
+      text-align: center;
+    }
+
+    form {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    input, select, button {
+      margin: 10px 0;
+      width: 56%;
+      padding: 10px; /* Add padding for better visual */
+      border: 1px solid #ccc; /* Add border for better visual */
+      border-radius: 5px; /* Add border-radius for rounded corners */ 
+    }
+
+    .profile-image {
+      max-width: 100%;
+      height: auto;
+      margin-top: 10px;
+    }
+    #logo-container {
+      text-align: left; /* Align the logo to the left */
+      margin-bottom: 20px; /* Adjust spacing as needed */
+    }
+
+    #logo {
+      max-width: 100px;
+      max-height: 100px;
+      margin-left: 10px;
+      cursor: pointer; /* Change cursor to pointer to indicate it's clickable */
+    }
+    #side-window {
+      height: 100%;
+      width: 0;
+      position: fixed;
+      z-index: 1;
+      top: 0;
+      left: 0;
+      background-color: #111;
+      overflow-x: hidden;
+      transition: 0.5s;
+      padding-top: 60px;
+      color: white;
+    }
+    #side-window p {
+      font-size: 30px;  /* Adjust the font size as needed */
+      margin: 15px;    /* Add margin for better spacing */
+    }
+
+    #side-window a {
+      padding: 8px 8px 8px 32px;
+      text-decoration: none;
+      font-size: 25px;
+      color: #818181;
+      display: block;
+      transition: 0.3s;
+    }
+
+    #side-window a:hover {
+      color: #f1f1f1;
+    }
+
+    #side-window .close-btn {
+      position: absolute;
+      top: 0;
+      right: 25px;
+      font-size: 36px;
+      margin-left: 50px;
+    }
+    button[type="submit"] {
+    transition: transform 0.3s ease, background-color 0.3s ease; /* Add transitions for transform and background-color */
+    background-color: #4CAF50; /* Set the initial background color */
+    color: white; /* Set the text color */
+    border: none; /* Remove the default button border */
+    padding: 10px; /* Add padding for better visual */
+  }
+
+  button[type="submit"]:hover {
+    transform: scale(1.1); /* Scale the button on hover */
+    background-color: #45a049; /* Change the background color on hover */
+  }
+  #logo-text {
+    color: white; /* Set the text color */
+    font-size: 16px; /* Set the font size as desired */
+    margin-left: 10px; /* Adjust the margin as needed */
+  }
+
+
+  </style>
+
+</head>
+<body>
+  <div id="logo-container">
+    <!-- Wrap the logo in an anchor tag to make it clickable -->
+    <a onclick="showSideWindow()">
+      <img id="logo" src="pictures/ALUM.png" alt="Logo">
+    </a>
+    <p id="logo-text">Click on ALUMNI</p> <!-- Add this line for the text close to the logo -->
+  </div>
+
+  <div id="side-window">
+    <a href="javascript:void(0)" class="close-btn" onclick="hideSideWindow()">&times;</a>
+    <p>Please fill out all the necessary fields and add your personal photo to create your identity card and add it in the “student cards” area. <a href="cards.html">Click here</a> to see the other students' cards.</p>
+  </div>
+  <div class="card">
+    <h1>Student Informations Form</h1>
+    <br>
+    <form id="user-info-form" onsubmit="saveUserInfo(event);">
+      <input type="text" id="name" placeholder="Enter name" required>
+      <input type="text" id="lastName" placeholder="Enter last name" required>
+      <select id="gender" required>
+        <option value="" disabled selected>Select Gender</option>
+        <option value="male">Male</option>
+        <option value="female">Female</option>
+      </select>
+      <input type="text" id="phoneNumber" placeholder="Enter phone number" required>
+      <input type="date" id="birthDate" placeholder="Birth Date" required>
+      <input type="number" id="age" placeholder="Enter age" required>
+      <input type="text" id="identityNumber" placeholder="Enter identity number" required>
+      <input type="text" id="email" placeholder="Enter email" required>
+      <input type="number" id="yearOfStudy" placeholder="Enter current year of study" required>
+      <input type="text" id="university" placeholder="Enter university" required>
+      <input type="text" id="yearOfRegistration" placeholder="Enter year of registration" required>
+      <input type="text" id="yearOfGraduation" placeholder="Enter year of graduation" required>
+      <input type="text" id="major" placeholder="Enter major (e.g., CLE-INFO)" required>
+      <input type="text" id="clubs" placeholder="Enter clubs" required>
+      <input type="text" id="interests" placeholder="Enter interests" required>
+      <input type="text" id="socialNetworks" placeholder="Enter your social networks" required>
+      <input type="text" id="currentJob" placeholder="Enter current job" required>
+      <input type="text" id="city" placeholder="Enter city" required>
+      <input type="text" id="shortbio" placeholder="Short Bio" >
+      <input type="file" id="image" accept="image/*" required>
+      <button type="submit">Submit</button>
+    </form>
+  </div>
+</body>
+</html>

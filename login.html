@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Login</title>
+    <link rel="stylesheet" href="styles.css"> <!-- Link to styles.css -->
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
+
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background: url('pictures/wall9.jpg') center/cover no-repeat; /* Adjust the image path */
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+        }
+
+        .card {
+            background-color: #ffffff95;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            padding: 20px;
+            width: 300px;
+            text-align: center;
+            position: relative; /* Added for positioning the icons */
+            border: 2px solid #ccc; /* Adjust the border size and color as needed */
+            border-radius: 36px; /* Adjust the border-radius for rounded corners */
+}
+
+        .header {
+            text-align: center;
+        }
+
+        .alumni-text {
+            font-size: 24px;
+            font-weight: bold;
+        }
+
+        .top-center-nav {
+            margin-top: 20px;
+        }
+
+        .top-center-nav a {
+            text-decoration: none;
+            color: #333;
+            margin-right: 20px;
+        }
+
+        .top-center-nav a:hover {
+            color: #0066cc;
+        }
+
+        /* Added styling for the eye icon, email icon, and lock icon */
+        .eye-icon,
+        .email-icon,
+        .lock-icon {
+            position: absolute;
+            top: 33%;
+            transform: translateY(-50%);
+            cursor: pointer;
+            margin-left: -23px; /* Adjust the margin as needed */
+        }
+
+        .email-icon {
+            left: 0;
+            margin-left: -10px;
+        }
+
+        .lock-icon {
+            left: 0;
+            margin-left: -8px;
+        }
+
+        /* Hide the password input's default increment/decrement arrows in some browsers */
+        input[type="password"]::-webkit-inner-spin-button,
+        input[type="password"]::-webkit-outer-spin-button {
+            -webkit-appearance: none;
+            margin: 0;
+        }
+
+        /* Style the email, password inputs and container */
+        .email-container,
+        .password-container {
+            position: relative;
+            width: 100%;
+        }
+
+        input[type="email"],
+        .password-input {
+            width: calc(100% - 30px); /* Adjust the width as needed */
+            padding: 8px;
+            margin-bottom: 16px;
+            box-sizing: border-box;
+            border: 1px solid #ccc; /* Adjust the border size and color as needed */
+            border-radius: 20px; /* Adjust the border-radius for rounded corners */
+}
+
+
+        .password-input {
+            padding-left: 10px; /* Space for the eye icon */
+        }
+
+        /* Added style for the forgot password link */
+        .forgot-password-link {
+            color: #0066cc;
+            text-decoration: none;
+            margin-top: 10px;
+            display: block;
+        }
+        button {
+            background-color: #9c00cc87; /* Your button background color */
+            color: white;
+            border: none;
+            padding: 10px 15px;
+            text-align: center;
+            text-decoration: none;
+            display: inline-block;
+            font-size: 16px;
+            cursor: pointer;
+            border-radius: 20px;
+            /* Add glow effect */
+            box-shadow: 0 0 10px rgba(151, 196, 229, 0.8); /* Adjust the color and spread as needed */
+        }
+
+button:hover {
+    background-color: #005387; /* Adjust the hover color as needed */
+}
+
+    </style>
+
+    <script>
+        // Your Firebase config (same as in signup.html)
+        const firebaseConfig = {
+            apiKey: "AIzaSyCJ-F4W--iI8qLgYeLBPD78z97Sa0FE6Dg",
+            authDomain: "final-abe61.firebaseapp.com",
+            projectId: "final-abe61",
+            storageBucket: "final-abe61.appspot.com",
+            messagingSenderId: "516845694136",
+            appId: "1:516845694136:web:83a917e5c0e511c497d84d",
+            measurementId: "G-4Z9EWVGC6X"
+        };
+
+        // Initialize Firebase
+        firebase.initializeApp(firebaseConfig);
+
+        // Function to handle login
+    function login() {
+        const email = document.getElementById('email').value;
+        const passwordInput = document.getElementById('password');
+        const password = passwordInput.value;
+
+        firebase.auth().signInWithEmailAndPassword(email, password)
+            .then((userCredential) => {
+                const user = userCredential.user;
+                // Check if the email is verified
+                if (user.emailVerified) {
+                    // Redirect or perform additional actions after successful login
+                    window.location.href = "information.html";
+                } else {
+                    // If email is not verified, show an error message
+                    document.getElementById('error-message').innerText = "Please verify your email first.";
+                    // Sign out the user
+                    firebase.auth().signOut();
+                }
+            })
+            .catch((error) => {
+                document.getElementById('error-message').innerText = error.message;
+            });
+    }
+
+        // Toggle password visibility
+        function togglePasswordVisibility() {
+            const passwordInput = document.getElementById('password');
+            passwordInput.type = (passwordInput.type === 'password') ? 'text' : 'password';
+        }
+    </script>
+</head>
+
+<body>
+    <a href="index.html" style="position: absolute; top: 10px; left: 10px; text-decoration: none; color: #f0f0f0;">
+        <div style="display: flex; align-items: center; cursor: pointer;">
+          <span style="margin-right: 5px;">🠔</span>
+          <span>Back</span>
+        </div>
+      </a>
+
+    <div class="card">
+        <h1>Login</h1>
+        <form id="login-form">
+            <!-- Email container with email icon -->
+            <div class="email-container">
+                <span class="email-icon">✉️</span>
+                <input type="email" id="email" placeholder="Enter your Email" required>
+            </div>
+            <!-- Password container with lock and eye icons -->
+            <div class="password-container">
+                <span class="lock-icon">🔒</span>
+                <input type="password" id="password" class="password-input" placeholder="Enter your Password" required>
+                <span class="eye-icon" onclick="togglePasswordVisibility()">👁️</span>
+            </div>
+            <button type="button" onclick="login()">Login</button>
+            <p id="error-message"></p>
+            <!-- Forgot Password link -->
+            <a class="forgot-password-link" href="forgot-password.html">Forgot Password?</a>
+        </form>
+        <p>Don't have an account? <a href="signup.html">Sign Up</a></p>
+    </div>
+</body>
+
+</html>

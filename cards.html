@@ -1,0 +1,345 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <title>User Cards</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 0;
+      padding: 0;
+      background-color: #f2f2f2;
+      background-image: url('pictures/wall0.jpg');
+      background-size: cover;
+    }
+
+    .back-link {
+      position: absolute;
+      top: 10px;
+      left: 10px;
+      text-decoration: none;
+      color: #ffffff;
+      font-size: 20px;
+      cursor: pointer;
+    }
+
+    .back-link:hover {
+      text-decoration: underline;
+    }
+
+    .logo {
+      text-align: center;
+      margin-top: 10px;
+    }
+
+    .logo img {
+      width: 150px; /* Set the desired width for your logo */
+      height: auto; /* Maintain aspect ratio */
+    }
+
+    .card {
+      background-color: #f2f2f270;
+      border: 1px solid #ccc;
+      padding: 15px;
+      margin: 10px;
+      width: 300px;
+      display: inline-block;
+      text-align: center;
+      overflow: hidden;
+      transition: transform 0.3s ease-in-out;
+      cursor: pointer;
+      border-radius: 20%;
+      position: relative;
+    }
+
+    h1 {
+      text-align: center;
+      color: rgb(243, 243, 243);
+    }
+
+    .card:hover {
+      transform: scale(1.05);
+    }
+
+    .profile-image {
+      width: 150px;
+      height: 150px;
+      object-fit: cover;
+      border-radius: 50%;
+    }
+
+    .card-content {
+      display: none;
+      opacity: 0;
+      transition: opacity 0.5s ease-in-out;
+    }
+
+    .card.expanded .card-content {
+      display: block;
+      opacity: 1;
+    }
+
+    .reactions {
+      display: flex;
+      justify-content: space-around;
+      margin-top: 10px;
+    }
+
+    .reaction {
+      cursor: pointer;
+    }
+
+    .reaction-icon {
+      width: 20px;
+      height: 20px;
+      margin-right: 5px;
+    }
+
+    .show-more-button {
+      background-color: #4CAF50;
+      color: white;
+      border: none;
+      padding: 10px 15px;
+      text-align: center;
+      text-decoration: none;
+      display: inline-block;
+      font-size: 14px;
+      margin-top: 10px;
+      cursor: pointer;
+      border-radius: 5px;
+      transition: background-color 0.3s ease-in-out;
+    }
+
+    .show-more-button:hover {
+      background-color: #45a049;
+    }
+
+    .reaction-count {
+      font-size: 14px;
+      margin-top: 5px;
+    }
+    .deconnexion-button {
+      position: absolute;
+      top: 10px;
+      right: 10px;
+      background-color: #ff4d4d; /* Red background color */
+      color: white;
+      border: none;
+      padding: 10px 15px;
+      text-align: center;
+      text-decoration: none;
+      display: inline-block;
+      font-size: 14px;
+      cursor: pointer;
+      border-radius: 5px;
+      transition: background-color 0.3s ease-in-out;
+    }
+
+    .deconnexion-button:hover {
+      background-color: #ff6666; /* Darker red on hover */
+    }
+
+  </style>
+  <!-- Firebase SDK -->
+  <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
+</head>
+
+<body>
+  <a href="information.html" class="back-link">&#8592; Back</a>
+  <button class="deconnexion-button" onclick="logout()">Deconnexion</button>
+  <div class="logo">
+    <img src="pictures/ALUM.png" alt="Logo">
+  </div>
+  <h1>Students Cards</h1>
+  <div id="user-cards"></div>
+
+  <script>
+    // Initialize Firebase
+    const firebaseConfig = {
+      // Your Firebase configuration
+      apiKey: "AIzaSyCJ-F4W--iI8qLgYeLBPD78z97Sa0FE6Dg",
+        authDomain: "final-abe61.firebaseapp.com",
+        databaseURL: "https://final-abe61-default-rtdb.firebaseio.com",
+        projectId: "final-abe61",
+        storageBucket: "final-abe61.appspot.com",
+        messagingSenderId: "516845694136",
+        appId: "1:516845694136:web:83a917e5c0e511c497d84d",
+        measurementId: "G-4Z9EWVGC6X"
+    };
+
+    firebase.initializeApp(firebaseConfig);
+
+    const auth = firebase.auth();
+    const database = firebase.database();
+
+    // Function to fetch and display user cards
+  function displayUserCards() {
+    const userCardsDiv = document.getElementById('user-cards');
+
+
+       // Check if the user is logged in
+    auth.onAuthStateChanged((user) => {
+      if (user) {
+        const userId = user.uid;
+// Fetch user data from the 'users' node in Realtime Database
+database.ref('users').once('value')
+          .then((snapshot) => {
+            const usersData = snapshot.val();
+
+            if (usersData) {
+              // Loop through each user and display their information in a card
+              Object.keys(usersData).forEach((cardUserId) => {
+                const userData = usersData[cardUserId];
+
+                // Skip displaying the user's own card
+                if (cardUserId !== userId && hasRequiredFields(userData)) {
+                  // Fetch reactions data from the 'reactions' node in Realtime Database
+                  database.ref(`users/${cardUserId}/reactions`).once('value')
+                    .then((reactionSnapshot) => {
+                      const reactionsData = reactionSnapshot.val() || {};
+                      const likeCount = reactionsData.like || 0;
+                      const heartCount = reactionsData.heart || 0;
+                      const starCount = reactionsData.star || 0;
+
+                      const cardDiv = document.createElement('div');
+                      cardDiv.classList.add('card');
+                      cardDiv.dataset.userid = cardUserId; // Set dataset for identifying the card
+
+                      cardDiv.innerHTML = `
+                          <img src="${userData.image}" alt="Profile Image" class="profile-image">
+                          <h2>${userData.name} ${userData.lastName}</h2>
+                          <p><strong>Email:</strong> ${userData.email}</p>
+                          <p><strong>University:</strong> ${userData.university}</p>
+                          <p><strong>Major:</strong> ${userData.major}</p>
+                          <div class="card-content">
+                            <p><strong>Birth Date:</strong> ${userData.birthDate}</p>
+                            <p><strong>Age:</strong> ${userData.age}</p>
+                            <p><strong>Identity Number:</strong> ${userData.identityNumber}</p>
+                            <p><strong>City:</strong> ${userData.city}</p>
+                            <p><strong>Current Year of Study:</strong> ${userData.yearOfStudy}</p>
+                            <p><strong>School:</strong> ${userData.school}</p>
+                            <p><strong>Year of Registration:</strong> ${userData.yearOfRegistration}</p>
+                            <p><strong>Year of Graduation:</strong> ${userData.yearOfGraduation}</p>
+                            <p><strong>Clubs:</strong> ${userData.clubs}</p>
+                            <p><strong>Interests:</strong> ${userData.interests}</p>
+                            <p><strong>Social Networks:</strong> ${userData.socialNetworks}</p>
+                            <p><strong>Current Job:</strong> ${userData.currentJob}</p>
+                            <p><strong>Short Bio:</strong> ${userData.shortbio}</p>
+                            <!-- Add other user information here -->
+                          </div>
+                          <button class="show-more-button" onclick="toggleCardExpansion('${cardUserId}')">Show More</button>
+                          <div class="reactions">
+                            <span class="reaction" onclick="react('like', '${cardUserId}')">👍</span>
+                            <span class="reaction" onclick="react('heart', '${cardUserId}')">❤️</span>
+                            <span class="reaction" onclick="react('star', '${cardUserId}')">⭐</span>
+                          </div>
+                          <div class="reaction-count">
+                            <span id="like-count-${cardUserId}">${likeCount}</span> Likes
+                            <span id="heart-count-${cardUserId}">${heartCount}</span> Hearts
+                            <span id="star-count-${cardUserId}">${starCount}</span> Stars
+                          </div>
+                        `;
+
+                        userCardsDiv.appendChild(cardDiv);
+                      })
+                      .catch((error) => {
+                        console.error("Error fetching reactions data:", error);
+                      });
+                  }
+                });
+              } else {
+                userCardsDiv.innerHTML = "<p>No user data found!</p>";
+              }
+            })
+            .catch((error) => {
+              console.error("Error fetching user data:", error);
+            });
+        }
+      });
+    }
+
+    // Function to toggle card expansion
+    function toggleCardExpansion(cardUserId) {
+      const cardDiv = document.querySelector(`[data-userid="${cardUserId}"]`);
+      cardDiv.classList.toggle('expanded');
+    }
+
+    // Function to handle reactions
+    function react(reactionType, cardUserId) {
+      // Check if the user is logged in
+      auth.onAuthStateChanged((user) => {
+        if (user) {
+          const userId = user.uid;
+
+          // Check if the user has already reacted to this card
+          database.ref(`users/${userId}/reactions/${cardUserId}/${reactionType}`).once('value')
+            .then((snapshot) => {
+              const hasReacted = snapshot.val();
+              if (!hasReacted) {
+                // Update the count locally
+                const countElement = document.getElementById(`${reactionType}-count-${cardUserId}`);
+                let count = parseInt(countElement.innerText) || 0;
+                count += 1;
+                countElement.innerText = count;
+
+                // Mark that the user has reacted to this card
+                database.ref(`users/${userId}/reactions/${cardUserId}/${reactionType}`).set(true);
+
+                // Update the 'reactions' node in Realtime Database
+                database.ref(`users/${cardUserId}/reactions/${reactionType}`).transaction((currentCount) => {
+                  return (currentCount || 0) + 1;
+                }).catch((error) => {
+                  console.error("Error updating reactions data:", error);
+                });
+              } else {
+                alert("You can only react to each card once!");
+              }
+            })
+            .catch((error) => {
+              console.error("Error checking reaction data:", error);
+            });
+        }
+      });
+    }
+
+    function hasRequiredFields(userData) {
+  return userData && 
+         userData.name && 
+         userData.lastName && 
+         userData.email && 
+         userData.university && 
+         userData.major &&
+         userData.birthDate && // Add a birthDate field check
+         userData.age &&        // Add an age field check
+         userData.image;        // Add an image field check
+  // Add additional checks for any other required fields
+}
+
+    // Call the function to display user cards when the page loads
+    displayUserCards();
+
+    function logout() {
+      firebase.auth().signOut().then(() => {
+        // Sign-out successful, redirect or perform other actions as needed
+        window.location.href = "index.html";
+      }).catch((error) => {
+        console.error("Error during logout:", error);
+      });
+    }
+   // Function to handle logout
+   function logout() {
+      firebase.auth().signOut().then(() => {
+        // Sign-out successful, redirect or perform other actions as needed
+        window.location.href = "index.html";
+      }).catch((error) => {
+        console.error("Error during logout:", error);
+      });
+    }
+
+  </script>
+</body>
+
+</html>

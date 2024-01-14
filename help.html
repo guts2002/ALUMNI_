@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Alumni Page</title>
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+      font-family: 'Arial', sans-serif;
+      background-image: url('pictures/lamp.jpg'); /* Update with your actual image file name */
+      background-size: cover;
+      background-position: center;
+      background-repeat: no-repeat; /* Prevent background from repeating */
+      height: 100vh; /* Set the height to cover the entire viewport */
+      color: #fff; /* Set your desired text color */
+    }
+
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 20px;
+      text-align: center;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      height: 100vh; /* Adjust the height as needed */
+    }
+
+    .card {
+      background-color: rgba(255, 255, 255, 0.69); /* Set the background color for the cards with some opacity */
+      border-radius: 8px;
+      box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+      padding: 20px;
+      margin: 20px;
+      text-align: center;
+    }
+
+    h2 {
+      color: #333; /* Set your desired text color */
+    }
+
+    p {
+      color: #555; /* Set your desired text color */
+    }
+
+    .signInButton {
+      background-color: #4CAF50; /* Set your desired button color */
+      color: #fff; /* Set your desired text color */
+      padding: 10px 20px;
+      font-size: 16px;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+    button {
+            background-color: #9c00cc87; /* Your button background color */
+            color: white;
+            border: none;
+            padding: 10px 15px;
+            text-align: center;
+            text-decoration: none;
+            display: inline-block;
+            font-size: 16px;
+            cursor: pointer;
+            border-radius: 20px;
+            /* Add glow effect */
+            box-shadow: 0 0 10px rgba(151, 196, 229, 0.8); /* Adjust the color and spread as needed */
+        }
+
+button:hover {
+    background-color: #005387; /* Adjust the hover color as needed */
+}
+    
+  </style>
+</head>
+<body>
+
+<div class="container">  
+  <div class="card">
+    <h2>Need help ?</h2>
+    <p>In the Sign Up page, make sure that you wil enter all informations and you must enter your um5 email , after that we will send a verification link to your um5 account , click on the link to verify your account and you can Log in </p>
+    <p>After that enter your personal informations and upload your picture to create your ID Card in the students space </p>
+  </div>
+  
+  <button class="signInButton" onclick="location.href='login.html'">Sign In ?</button>
+
+</div>
+
+</body>
+</html>
